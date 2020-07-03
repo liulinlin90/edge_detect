@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-INPUTDIR=/home/linlin.liu/research/ct/data/BIPED/edges
-VALID=/home/linlin.liu/research/ct/data/BIPED/edges
-OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints
+INPUTDIR=/home/linlin.liu/research/ct/data/portrait2/train
+VALID=/home/linlin.liu/research/ct/data/portrait2/train
+OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints2_exp2
+export CUDA_VISIBLE_DEVICES=1
 
 python main.py \
     --input-dir $INPUTDIR \
@@ -10,5 +11,5 @@ python main.py \
     --test_list test_rgb.lst \
     --output_dir $OUTPUT \
     --test_data BIPED \
-    --gpu 0
+    --gpu 1
 

@@ -405,8 +405,11 @@ def split_data(data_dir,augment_both=True):
             os.path.join(img_dir, 'real'), x_list[i]))
         img_width = x_tmp.shape[1]
         img_height = x_tmp.shape[0]
-        x_tmp1 = x_tmp[:, 0:int(img_width* 2.0/3), :]
-        x_tmp2 = x_tmp[:, int(img_width/3.0):img_width, :]
+        cut_img_width = int(img_width * 2.0/3)
+        if cut_img_width < 400:
+            cut_img_width = img_width - 10
+        x_tmp1 = x_tmp[:, 0:cut_img_width, :]
+        x_tmp2 = x_tmp[:, img_width-cut_img_width:img_width, :]
         cv.imwrite(os.path.join(x_p1_dir,x_list[i]), x_tmp1)
         cv.imwrite(os.path.join(x_p2_dir,x_list[i]), x_tmp2)
 

@@ -156,9 +156,12 @@ class BipedMyDataset(Dataset):
              image_directories = os.path.join(images_path, directory_name)
              for file_name_ext in os.listdir(image_directories):
                  file_name = file_name_ext[:-4]
+                 f1 = os.path.join(images_path, directory_name, file_name + '.png')
+                 if not os.path.isfile(f1):
+                    f1 = os.path.join(images_path, directory_name, file_name + '.jpg')
+                 f2 = os.path.join(labels_path, directory_name, file_name + '.png')
                  sample_indices.append(
-                     (os.path.join(images_path, directory_name, file_name + '.jpg'),
-                      os.path.join(labels_path, directory_name, file_name + '.png'),)
+                     (f1,f2,)
                  )
         return sample_indices
 
@@ -513,6 +516,9 @@ def main():
     model.apply(weight_init)
 
     if not args.is_testing:
+        if os.path.isfile(os.path.join(args.output_dir,args.checkpoint_data)):
+            print('loading weight from ', os.path.join(args.output_dir,args.checkpoint_data))
+            model.load_state_dict(torch.load(os.path.join(args.output_dir,args.checkpoint_data), map_location=device))
 
         dataset_train = BipedMyDataset(args.input_dir, train_mode='train',
                                       arg=args)
@@ -564,8 +570,8 @@ def main():
 
         # lr_schd.step() # decay lr at the end of the epoch.
     
-        with torch.no_grad():
-            validation(epoch, dataloader_val, model, device, img_test_dir,arg=args)
+        #with torch.no_grad():
+        #    validation(epoch, dataloader_val, model, device, img_test_dir,arg=args)
 
         try:
             net_state_dict = model.module.state_dict()

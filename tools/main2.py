@@ -15,5 +15,5 @@ if __name__=='__main__':
      # Once the BIPED datset is downloaded, put the localization of the dataset
      # for example if the data is in /home/user_name/datasets/BIPED
     #  put /home/home/user_name
-    base_dir = '/home/linlin.liu/research/ct/data/portrait2/train'
+    base_dir = '/home/linlin.liu/research/ct/data/portrait2/train_edge'
     main(dataset_dir=base_dir)

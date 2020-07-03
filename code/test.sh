@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-INPUTDIR=/home/linlin.liu/research/ct/data/BIPED/edges
-OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints
-CHKPNT=11/11_model.pth
-RESDIR=/home/linlin.liu/research/ct/data/portrait/test_result
-VALID=/home/linlin.liu/research/ct/data/portrait/test/
+INPUTDIR=/home/linlin.liu/research/ct/data/portrait2/train
+OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints2_exp2
+CHKPNT=24/24_model.pth
+RESDIR=/home/linlin.liu/research/ct/data/portrait2/test_result
+VALID=/home/linlin.liu/research/ct/data/portrait2/test/
+export CUDA_VISIBLE_DEVICES=2
 
 python test.py \
     --input-dir $INPUTDIR \

@@ -388,7 +388,11 @@ def save_image_batch_to_disk(tensor, output_dir, file_names, img_shape=None,arg=
             preds = []
             for i in range(tmp.shape[0]):
                 tmp_img = tmp[i]
-                tmp_img[tmp_img<0.0] = 0.0
+                tmp_img[tmp_img<0] = 0.0
+                # filter
+                tmp_img = tmp_img * tmp_img * 16
+                tmp_img[tmp_img>1.0] = 1.0
+                # filter end
                 tmp_img =255.0 * (1.0 - tmp_img)
                 if not tmp_img.shape[1]==i_shape[0] or not tmp_img.shape[0]==i_shape[1]:
                     tmp_img = cv.resize(tmp_img,(i_shape[0],i_shape[1]))
@@ -488,7 +492,7 @@ def main():
                         help='the number of workers for the dataloader.')
     parser.add_argument('--tensorboard', action='store_true', default=True,
                         help='use tensorboard for logging purposes'),
-    parser.add_argument('--gpu', type=str, default='1',
+    parser.add_argument('--gpu', type=str, default='2',
                         help='select GPU'),
     parser.add_argument('--img_width', type = int, default = 400, help='image size for training')
     parser.add_argument('--img_height', type = int, default = 400, help='image size for training')
