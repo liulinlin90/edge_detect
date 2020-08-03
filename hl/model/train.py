@@ -90,7 +90,7 @@ class SteelConfig(Config):
     TRAIN_ROIS_PER_IMAGE = 32
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 100
+    STEPS_PER_EPOCH = 2000
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 2
@@ -160,6 +160,7 @@ class SteelDataset(utils.Dataset):
             if maskpath.strip():
                 img = cv2.imread(maskpath, cv2.IMREAD_GRAYSCALE)
                 mask[:,:,i:i+1] = np.array(img).reshape(mask.shape[0], mask.shape[1], 1)
+                mask = ((255 - mask) / 255.0) > 0.2
         class_ids = np.array([self.class_names.index(d) for d in defects])
         return mask.astype(np.bool), class_ids.astype(np.int32)
 
@@ -261,10 +262,10 @@ def do_inference():
             modellib.load_image_gt(dataset_test, inference_config,
                                    image_id, use_mini_mask=False)
         x, y, _ = image.shape
-        if x % 2 != 0:
-            image = image[:x-1]
-        if y % 2 != 0:
-            image = image[:,:y-1]
+        #if x % 2 != 0:
+        #    image = image[:x-1]
+        #if y % 2 != 0:
+        #    image = image[:,:y-1]
         print('----------', image.shape)
         result = model.detect([image], verbose=0)[0]['masks']
         tmp = result[:, :, 0].reshape(result.shape[0], result.shape[1]) * 255.0
@@ -274,5 +275,5 @@ def do_inference():
 
 
 if __name__ == '__main__':
-    #do_train_model()
-    do_inference()
+    do_train_model()
+    #do_inference()
