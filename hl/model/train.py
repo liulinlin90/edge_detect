@@ -230,7 +230,7 @@ def do_inference():
     class InferenceConfig(SteelConfig):
         GPU_COUNT = 1
         IMAGES_PER_GPU = 1
-        IMAGE_RESIZE_MODE = "crop"
+        IMAGE_RESIZE_MODE = "none"
 
     inference_config = InferenceConfig()
 
@@ -262,18 +262,20 @@ def do_inference():
             modellib.load_image_gt(dataset_test, inference_config,
                                    image_id, use_mini_mask=False)
         x, y, _ = image.shape
-        #if x % 2 != 0:
-        #    image = image[:x-1]
-        #if y % 2 != 0:
-        #    image = image[:,:y-1]
+        if x % 64 != 0:
+            m = int(x / 64) * 64
+            image = image[:m]
+        if y % 64 != 0:
+            m = int(y / 64) * 64
+            image = image[:,:m]
         print('----------', image.shape)
         result = model.detect([image], verbose=0)[0]['masks']
         tmp = result[:, :, 0].reshape(result.shape[0], result.shape[1]) * 255.0
         tmp = tmp.astype('float32')
         tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
-        cv2.imwrite(os.path.join(SUBMISSION, str(image_id)+ '.jpg'), tmp)
+        cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']), tmp)
 
 
 if __name__ == '__main__':
-    do_train_model()
-    #do_inference()
+    #do_train_model()
+    do_inference()
