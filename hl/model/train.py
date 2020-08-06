@@ -18,9 +18,9 @@ from model import log
 
 # Directory to save logs and trained model
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
-TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/train/rgbr/real/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/edge_maps/train/rgbr/real/*jpg')
-VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/train/rgbr/real/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/edge_maps/train/rgbr/real/*jpg')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/train/rgbr/real/*jpg', None)
+TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
+VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
+TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', None)
 #TEST_DATA = ('./data/test_images/*jpg', None)
 SUBMISSION = './submission'
 
@@ -75,7 +75,7 @@ class SteelConfig(Config):
     IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 1  # background + 4 
+    NUM_CLASSES = 1 + 6  # background + 4 
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -90,7 +90,7 @@ class SteelConfig(Config):
     TRAIN_ROIS_PER_IMAGE = 32
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 2000
+    STEPS_PER_EPOCH = 1000
 
     # use small validation steps since the epoch is small
     VALIDATION_STEPS = 2
@@ -110,15 +110,20 @@ class SteelDataset(utils.Dataset):
         """
         # Add classes
         self.add_class("steel", 1, "1")
+        self.add_class("steel", 2, "2")
+        self.add_class("steel", 3, "3")
+        self.add_class("steel", 4, "4")
+        self.add_class("steel", 5, "5")
+        self.add_class("steel", 6, "6")
 
         data_pattern, maskfile = fpaths
         maskinfo = {}
         if maskfile is not None:
             for f in glob.glob(data_pattern):
-                img_cls = '1'
                 img_id = os.path.basename(f)
                 maskinfo[img_id] = {}
-                maskinfo[img_id][img_cls] = f
+                for img_cls in ['1', '2', '3', '4', '5', '6']:
+                    maskinfo[img_id][img_cls] = maskfile.format(str(int(img_cls) - 1),img_id)
 
         # Add images
         for f in glob.glob(data_pattern):
@@ -151,7 +156,7 @@ class SteelDataset(utils.Dataset):
 
     def load_mask(self, image_id):
         info = self.image_info[image_id]
-        num_defect = 1
+        num_defect = 6
         mask = np.zeros([info['height'], info['width'], num_defect], dtype=np.uint8)
         defects = []
         for i in range(num_defect):
@@ -159,8 +164,9 @@ class SteelDataset(utils.Dataset):
             maskpath = info['maskinfo'].get(str(i+1), '')
             if maskpath.strip():
                 img = cv2.imread(maskpath, cv2.IMREAD_GRAYSCALE)
+                img = np.array(img)
+                img = ((255 - img) / 255.0) < 0.5
                 mask[:,:,i:i+1] = np.array(img).reshape(mask.shape[0], mask.shape[1], 1)
-                mask = ((255 - mask) / 255.0) > 0.2
         class_ids = np.array([self.class_names.index(d) for d in defects])
         return mask.astype(np.bool), class_ids.astype(np.int32)
 
@@ -202,7 +208,7 @@ def do_train_model(init_with="coco", tune_head=True):
         # which layers to train by name pattern.
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=15,
+                    epochs=10,
                     layers='heads')
 
     # Fine tune all layers
@@ -211,18 +217,15 @@ def do_train_model(init_with="coco", tune_head=True):
     # train by name pattern.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=5,
-                augment=True,
+                epochs=11,
                 layers="5+")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=5,
-                augment=True,
+                epochs=12,
                 layers="4+")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=5,
-                augment=True,
+                epochs=13,
                 layers="all")
 
 
@@ -274,8 +277,9 @@ def do_inference():
         tmp = tmp.astype('float32')
         tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
         cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']), tmp)
+        cv2.imwrite(os.path.join(SUBMISSION, 'original.' + dataset_test.image_info[image_id]['id']), image)
 
 
 if __name__ == '__main__':
-    #do_train_model()
+    do_train_model()
     do_inference()
