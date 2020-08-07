@@ -20,8 +20,7 @@ from model import log
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
 TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
 VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', None)
-#TEST_DATA = ('./data/test_images/*jpg', None)
+TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/test/*jpg', None)
 SUBMISSION = './submission'
 
 # Local path to trained weights file
@@ -62,11 +61,11 @@ def mask_to_rle(mask):
     return ' '.join(str(x) for x in runs)
 
 
-class SteelConfig(Config):
-    """Configuration for training on the steel dataset.
+class HighLightConfig(Config):
+    """Configuration for training on the highlight dataset.
     """
     # Give the configuration a recognizable name
-    NAME = "steel"
+    NAME = "highlight"
 
     IMAGE_RESIZE_MODE = "crop"
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
@@ -99,8 +98,8 @@ class SteelConfig(Config):
     BACKBONE = "resnet50"
 
 
-class SteelDataset(utils.Dataset):
-    """ process steel dataset
+class HighLightDataset(utils.Dataset):
+    """ process highlight dataset
     """
 
     def load_image_info(self, fpaths):
@@ -109,12 +108,12 @@ class SteelDataset(utils.Dataset):
         height, width: the size of the generated images.
         """
         # Add classes
-        self.add_class("steel", 1, "1")
-        self.add_class("steel", 2, "2")
-        self.add_class("steel", 3, "3")
-        self.add_class("steel", 4, "4")
-        self.add_class("steel", 5, "5")
-        self.add_class("steel", 6, "6")
+        self.add_class("highlight", 1, "1")
+        self.add_class("highlight", 2, "2")
+        self.add_class("highlight", 3, "3")
+        self.add_class("highlight", 4, "4")
+        self.add_class("highlight", 5, "5")
+        self.add_class("highlight", 6, "6")
 
         data_pattern, maskfile = fpaths
         maskinfo = {}
@@ -128,22 +127,22 @@ class SteelDataset(utils.Dataset):
         # Add images
         for f in glob.glob(data_pattern):
             img_id = os.path.basename(f)
-            defects = []
+            hl_regions = []
             for img_cls in sorted(maskinfo.get(img_id, {}).keys()):
-                defects.append(img_cls)
+                hl_regions.append(img_cls)
             image = cv2.imread(f, cv2.IMREAD_COLOR)
             height, width, _ = image.shape
-            self.add_image("steel", image_id=img_id, path=f,
+            self.add_image("highlight", image_id=img_id, path=f,
                            width=width, height=height,
                            maskinfo=maskinfo.get(img_id, {}),
-                           defects=defects)
+                           hl_regions=hl_regions)
 
 
     def image_reference(self, image_id):
-        """Return the defects data of the image."""
+        """Return the hl_regions data of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "steel":
-            return info["defects"]
+        if info["source"] == "highlight":
+            return info["hl_regions"]
         else:
             super(self.__class__).image_reference(self, image_id)
 
@@ -156,32 +155,32 @@ class SteelDataset(utils.Dataset):
 
     def load_mask(self, image_id):
         info = self.image_info[image_id]
-        num_defect = 6
-        mask = np.zeros([info['height'], info['width'], num_defect], dtype=np.uint8)
-        defects = []
-        for i in range(num_defect):
-            defects.append(str(i+1))
+        num_hl_region = 6
+        mask = np.zeros([info['height'], info['width'], num_hl_region], dtype=np.uint8)
+        hl_regions = []
+        for i in range(num_hl_region):
+            hl_regions.append(str(i+1))
             maskpath = info['maskinfo'].get(str(i+1), '')
             if maskpath.strip():
                 img = cv2.imread(maskpath, cv2.IMREAD_GRAYSCALE)
                 img = np.array(img)
                 img = ((255 - img) / 255.0) < 0.5
                 mask[:,:,i:i+1] = np.array(img).reshape(mask.shape[0], mask.shape[1], 1)
-        class_ids = np.array([self.class_names.index(d) for d in defects])
+        class_ids = np.array([self.class_names.index(d) for d in hl_regions])
         return mask.astype(np.bool), class_ids.astype(np.int32)
 
 
 def do_train_model(init_with="coco", tune_head=True):
-    config = SteelConfig()
+    config = HighLightConfig()
     config.display()
 
     # Training dataset
-    dataset_train = SteelDataset()
+    dataset_train = HighLightDataset()
     dataset_train.load_image_info(TRAIN_DATA)
     dataset_train.prepare()
 
     # Validation dataset
-    dataset_val = SteelDataset()
+    dataset_val = HighLightDataset()
     dataset_val.load_image_info(VALID_DATA)
     dataset_val.prepare()
 
@@ -230,7 +229,7 @@ def do_train_model(init_with="coco", tune_head=True):
 
 
 def do_inference():
-    class InferenceConfig(SteelConfig):
+    class InferenceConfig(HighLightConfig):
         GPU_COUNT = 1
         IMAGES_PER_GPU = 1
         IMAGE_RESIZE_MODE = "none"
@@ -250,7 +249,7 @@ def do_inference():
     model.load_weights(model_path, by_name=True)
 
     # Validation dataset
-    dataset_test = SteelDataset()
+    dataset_test = HighLightDataset()
     dataset_test.load_image_info(TEST_DATA)
     dataset_test.prepare()
 
@@ -271,15 +270,17 @@ def do_inference():
         if y % 64 != 0:
             m = int(y / 64) * 64
             image = image[:,:m]
-        print('----------', image.shape)
-        result = model.detect([image], verbose=0)[0]['masks']
-        tmp = result[:, :, 0].reshape(result.shape[0], result.shape[1]) * 255.0
-        tmp = tmp.astype('float32')
-        tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
-        cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']), tmp)
-        cv2.imwrite(os.path.join(SUBMISSION, 'original.' + dataset_test.image_info[image_id]['id']), image)
+        result = model.detect([image], verbose=0)[0]
+        for i in range(len(result["class_ids"])):
+            cls = result["class_ids"][i]
+            cls_mask = result['masks'][:,:,i]
+            tmp = cls_mask.reshape(cls_mask.shape[0], cls_mask.shape[1]) * 255.0
+            tmp = tmp.astype('float32')
+            tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
+            cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_' + str(cls) + '.jpg'), tmp)
+        cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_orig.jpg'), image)
 
 
 if __name__ == '__main__':
-    do_train_model()
+    #do_train_model()
     do_inference()

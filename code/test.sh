@@ -4,7 +4,7 @@ INPUTDIR=/home/linlin.liu/research/ct/data/portrait2/train
 OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints2_exp2
 CHKPNT=24/24_model.pth
 RESDIR=/home/linlin.liu/research/ct/data/portrait2/test_result
-VALID=/home/linlin.liu/research/ct/data/portrait2/test/
+VALID=/home/linlin.liu/research/ct/data/portrait2/test
 export CUDA_VISIBLE_DEVICES=2
 
 python test.py \

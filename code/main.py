@@ -485,7 +485,7 @@ def main():
                         help='Initial learning rate.')
     parser.add_argument('--lr_stepsize', default=1e4, type=int,
                         help='Learning rate step size.')
-    parser.add_argument('--batch-size', type=int, default=8, metavar='B',
+    parser.add_argument('--batch-size', type=int, default=16, metavar='B',
                         help='the mini-batch size (default: 2)')
     parser.add_argument('--num-workers', default=8, type=int,
                         help='the number of workers for the dataloader.')
