@@ -18,9 +18,9 @@ from model import log
 
 # Directory to save logs and trained model
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
-TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
-VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl2/hl/{}/{}')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl2/test/*jpg', None)
+TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
+VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
+TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/test/*jpg', None)
 SUBMISSION = './submission'
 
 # Local path to trained weights file
@@ -282,5 +282,5 @@ def do_inference():
 
 
 if __name__ == '__main__':
-    #do_train_model()
+    do_train_model()
     do_inference()
