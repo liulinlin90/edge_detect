@@ -21,7 +21,7 @@ MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
 TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
 VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
 TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/test/*jpg', None)
-SUBMISSION = './submission'
+OUTPUT = './output'
 
 # Local path to trained weights file
 COCO_MODEL_PATH = os.path.join('/home/linlin.liu/research/ct/data/model/hl/coco', "mask_rcnn_coco.h5")
@@ -277,8 +277,8 @@ def do_inference():
             tmp = cls_mask.reshape(cls_mask.shape[0], cls_mask.shape[1]) * 255.0
             tmp = tmp.astype('float32')
             tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
-            cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_' + str(cls) + '.jpg'), tmp)
-        cv2.imwrite(os.path.join(SUBMISSION, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_orig.jpg'), image)
+            cv2.imwrite(os.path.join(OUTPUT, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_' + str(cls) + '.jpg'), tmp)
+        cv2.imwrite(os.path.join(OUTPUT, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_orig.jpg'), image)
 
 
 if __name__ == '__main__':
