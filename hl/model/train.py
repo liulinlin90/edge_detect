@@ -18,9 +18,9 @@ from model import log
 
 # Directory to save logs and trained model
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
-TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
-VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl/hl/{}/{}')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl/test/*jpg', None)
+TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/hl/{}/{}')
+VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/hl/{}/{}')
+TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/test/*jpg', None)
 OUTPUT = './output'
 
 # Local path to trained weights file
@@ -207,7 +207,7 @@ def do_train_model(init_with="coco", tune_head=True):
         # which layers to train by name pattern.
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=10,
+                    epochs=15,
                     layers='heads')
 
     # Fine tune all layers
@@ -216,15 +216,15 @@ def do_train_model(init_with="coco", tune_head=True):
     # train by name pattern.
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=11,
+                epochs=16,
                 layers="5+")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=12,
+                epochs=17,
                 layers="4+")
     model.train(dataset_train, dataset_val,
                 learning_rate=config.LEARNING_RATE / 10,
-                epochs=13,
+                epochs=18,
                 layers="all")
 
 
@@ -282,5 +282,5 @@ def do_inference():
 
 
 if __name__ == '__main__':
-    do_train_model()
+    #do_train_model()
     do_inference()
