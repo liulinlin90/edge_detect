@@ -17,10 +17,10 @@ from model import log
 
 
 # Directory to save logs and trained model
-MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log'
-TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/hl/{}/{}')
-VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/hl/{}/{}')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl.aug/test/*jpg', None)
+MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log3'
+TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
+VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
+TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/test/*jpg', None)
 OUTPUT = './output'
 
 # Local path to trained weights file
@@ -74,7 +74,7 @@ class HighLightConfig(Config):
     IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 6  # background + 4 
+    NUM_CLASSES = 1 + 13  # background + 4 
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -114,6 +114,13 @@ class HighLightDataset(utils.Dataset):
         self.add_class("highlight", 4, "4")
         self.add_class("highlight", 5, "5")
         self.add_class("highlight", 6, "6")
+        self.add_class("highlight", 7, "7")
+        self.add_class("highlight", 8, "8")
+        self.add_class("highlight", 9, "9")
+        self.add_class("highlight", 10, "10")
+        self.add_class("highlight", 11, "11")
+        self.add_class("highlight", 12, "12")
+        self.add_class("highlight", 13, "13")
 
         data_pattern, maskfile = fpaths
         maskinfo = {}
@@ -121,7 +128,8 @@ class HighLightDataset(utils.Dataset):
             for f in glob.glob(data_pattern):
                 img_id = os.path.basename(f)
                 maskinfo[img_id] = {}
-                for img_cls in ['1', '2', '3', '4', '5', '6']:
+                for cls in range(1,14):
+                    img_cls = str(cls)
                     maskinfo[img_id][img_cls] = maskfile.format(str(int(img_cls) - 1),img_id)
 
         # Add images
@@ -155,7 +163,7 @@ class HighLightDataset(utils.Dataset):
 
     def load_mask(self, image_id):
         info = self.image_info[image_id]
-        num_hl_region = 6
+        num_hl_region = 13
         mask = np.zeros([info['height'], info['width'], num_hl_region], dtype=np.uint8)
         hl_regions = []
         for i in range(num_hl_region):
@@ -282,5 +290,5 @@ def do_inference():
 
 
 if __name__ == '__main__':
-    #do_train_model()
+    do_train_model()
     do_inference()
