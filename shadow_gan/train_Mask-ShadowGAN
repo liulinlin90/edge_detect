@@ -49,8 +49,8 @@ parser.add_argument('--iter_loss', type=int, default=500, help='average loss for
 opt = parser.parse_args()
 
 # USR
-#opt.dataroot = './shadow_USR'
-opt.dataroot = './shadow_USR/other/shadow'
+opt.dataroot = './shadow_USR'
+#opt.dataroot = './shadow_USR/other/shadow'
 # SRD
 #opt.dataroot = '/home/xwhu/dataset/SRD'
 # ISTD

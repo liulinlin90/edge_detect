@@ -20,7 +20,8 @@ from model import log
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log3'
 TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
 VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
-TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/test/*jpg', None)
+#TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/test/*jpg', None)
+TEST_DATA = ('/home/linlin.liu/research/ct/data/celeb_new/t/*jpg', None)
 OUTPUT = './output'
 
 # Local path to trained weights file
@@ -290,5 +291,5 @@ def do_inference():
 
 
 if __name__ == '__main__':
-    do_train_model()
+    #do_train_model()
     do_inference()
