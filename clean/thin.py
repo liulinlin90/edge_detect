@@ -12,13 +12,13 @@ def filter(img, fsize=3, keep=8, strike=1):
             if not (i + fsize < x) or not (j + fsize < y):
                 continue
             val = []
-            for tmpi in range(i, i + fsize +1):
-                for tmpj in range(j, j + fsize + 1):
+            for tmpi in range(i, i + fsize):
+                for tmpj in range(j, j + fsize):
                     val.append(img[tmpi,tmpj])
             val.sort()
             th = val[keep-1]
-            for tmpi in range(i, i + fsize +1):
-                for tmpj in range(j, j + fsize + 1):
+            for tmpi in range(i, i + fsize):
+                for tmpj in range(j, j + fsize):
                     if img[tmpi,tmpj] > th:
                         img_new[tmpi, tmpj] = 255.0
     return img_new
@@ -26,16 +26,16 @@ def filter(img, fsize=3, keep=8, strike=1):
 def smooth(img):
     img_new = copy.deepcopy(img)
     x, y = img.shape
-    for i in range(x):
-        for j in range(y):
+    for i in range(1,x):
+        for j in range(1,y):
             val = []
-            for tmpi in range(i - 1, i + 2):
-                for tmpj in range(j - 1, j + 2):
+            for tmpi in range(i - 1, i + 1):
+                for tmpj in range(j - 1, j + 1):
                     if tmpi > 0 and tmpi < x and tmpj > 0 and tmpj < y:
                         val.append(img[tmpi, tmpj])
-            if len(val) > 6:
-                val.sort()
-                val = val[:6]
+            #if len(val) > 6:
+            #    val.sort()
+            #    val = val[:6]
             img_new[i, j] = sum(val)/len(val)
     return img_new
 
@@ -52,6 +52,7 @@ img = np.array(img, dtype=np.float32)
 
 img = smooth(img)
 img = rm_noise(img)
-img = filter(img, fsize=4, keep=20, strike=2)
+img = filter(img, fsize=5, keep=20, strike=2)
 img = smooth(img)
+img = rm_noise(img)
 cv.imwrite(opath, img)

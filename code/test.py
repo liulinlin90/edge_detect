@@ -390,7 +390,7 @@ def save_image_batch_to_disk(tensor, output_dir, file_names, img_shape=None,arg=
                 tmp_img = tmp[i]
                 tmp_img[tmp_img<0] = 0.0
                 # filter
-                #tmp_img = tmp_img * 4
+                #tmp_img = tmp_img * 2
                 #tmp_img[tmp_img<0.1] = 0.0
                 #tmp_img = tmp_img * tmp_img * 16
                 tmp_img[tmp_img>1.0] = 1.0

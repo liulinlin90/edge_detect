@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-INPUTDIR=/home/linlin.liu/research/ct/data/portrait2/train_edge
-VALID=/home/linlin.liu/research/ct/data/portrait2/train_edge
-OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints2_exp2
-export CUDA_VISIBLE_DEVICES=0
+INPUTDIR=/home/linlin.liu/research/ct/data/portrait2/train_more
+VALID=/home/linlin.liu/research/ct/data/portrait2/train_more
+OUTPUT=/home/linlin.liu/research/ct/data/model/checkpoints_more
+export CUDA_VISIBLE_DEVICES=6
 
 python main.py \
     --input-dir $INPUTDIR \
