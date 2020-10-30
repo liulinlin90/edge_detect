@@ -18,9 +18,9 @@ from model import log
 
 # Directory to save logs and trained model
 MODEL_DIR = '/home/linlin.liu/research/ct/data/model/hl/log3'
-TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
-VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl3/hl/{}/{}')
-#TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl3/test/*jpg', None)
+TRAIN_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl4/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl4/hl/{}/{}')
+VALID_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl4/imgs/*jpg', '/home/linlin.liu/research/ct/data/portrait2/train_hl4/hl/{}/{}')
+#TEST_DATA = ('/home/linlin.liu/research/ct/data/portrait2/train_hl4/test/*jpg', None)
 TEST_DATA = ('/home/linlin.liu/research/ct/data/celeb_new/t/*jpg', None)
 OUTPUT = './output'
 
@@ -242,6 +242,7 @@ def do_inference():
         GPU_COUNT = 1
         IMAGES_PER_GPU = 1
         IMAGE_RESIZE_MODE = "none"
+        DETECTION_MIN_CONFIDENCE = 0.2
 
     inference_config = InferenceConfig()
 
@@ -280,16 +281,22 @@ def do_inference():
             m = int(y / 64) * 64
             image = image[:,:m]
         result = model.detect([image], verbose=0)[0]
+        best_score = {}
         for i in range(len(result["class_ids"])):
             cls = result["class_ids"][i]
             cls_mask = result['masks'][:,:,i]
             tmp = cls_mask.reshape(cls_mask.shape[0], cls_mask.shape[1]) * 255.0
             tmp = tmp.astype('float32')
             tmp = cv2.cvtColor(tmp, cv2.COLOR_GRAY2BGR)
+            score = result["scores"][i]
+            if score < best_score.get(cls, 0):
+                continue
+            else:
+                best_score[cls] = score
             cv2.imwrite(os.path.join(OUTPUT, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_' + str(cls) + '.jpg'), tmp)
         cv2.imwrite(os.path.join(OUTPUT, dataset_test.image_info[image_id]['id']).replace('.jpg',  '_orig.jpg'), image)
 
 
 if __name__ == '__main__':
-    #do_train_model()
-    do_inference()
+    do_train_model()
+    #do_inference()
